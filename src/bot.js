@@ -2,6 +2,7 @@ const { Telegraf } = require('telegraf');
 const sqlite3 = require('sqlite3').verbose();
 const { createTables } = require('./database.js');
 const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 const dotenv = require('dotenv');
 
 // init env config
@@ -29,21 +30,21 @@ const commands = {
         func: (ctx) => {
             // add user to users
             db.run(
-                `INSERT OR REPLACE users(id, userName) VALUES (?, ?)`,
+                `INSERT OR REPLACE INTO users (id, userName) VALUES (?, ?)`,
                 [
                     ctx.message.from.id,
-                    ctx.message.from.username,
+                    ctx.message.from.username
                 ]
             );
             // reply
             ctx.reply(`
-                **Welcome!**
+                Welcome!
                 Enter /help to see commands list
                 
-                **Authors**
+                Authors
                 - [@TheAihopGG](https://github.com/TheAihopGG/)
 
-                **Source code**
+                Source code
                 - ops...
             `);
         }
@@ -53,17 +54,81 @@ const commands = {
         description: 'Shows this message',
         usage: '/help',
         func: (ctx) => {
-            let string = '';
-            for (const commandName in exports.commands) {
-                const command = exports.commands[commandName];
-                string += `${command.name} - ${command.description}`;
+            let string = 'Commands list\n';
+            for (const commandName in commands) {
+                const command = commands[commandName];
+                string += `- /${command.name} - ${command.description}\n`;
             }
             ctx.reply(string);
+        }
+    },
+    ticket: {
+        name: 'ticket',
+        description: 'You have a question? Create a ticket',
+        usage: '/ticket <question>[, <image_url1>[, <image_url2>[, <image_urlN>]]]',
+        func: (ctx) => {
+            if (ctx.args.length == 1) {
+                // add ticket to tickets
+                db.run(
+                    `INSERT OR REPLACE INTO tickets(id, userId, commentary) VALUES (?, ?, ?)`,
+                    [
+                        uuidv4(),
+                        ctx.message.from.id,
+                        ctx.args.at(0) // commentary
+                    ]
+                );
+                // reply
+                ctx.reply('Ticket submitted successfully');
+            }
+            else if (ctx.args.length > 1) {
+                console.log(uuidv4());
+                // add ticket to tickets
+                db.run(
+                    `INSERT OR REPLACE INTO tickets(id, userId, commentary, image_urls) VALUES (?, ?, ?)`,
+                    [
+                        parseInt(uuidv4()),
+                        ctx.message.from.id,
+                        ctx.args.at(0), // commentary
+                        ctx.args.slice(1, -1) // image urls
+                    ]
+                );
+                // reply
+                ctx.reply('Ticket submitted successfully');
+            }
+            else {
+                // reply
+                ctx.reply('You must specify at least 1 parameter');
+            }
+        }
+    },
+    usage: {
+        name: 'usage',
+        description: 'Shows command usage',
+        usage: '/usage <commandName1>[, <commandName2>[, <commandNameN>]]',
+        func: (ctx) => {
+            if (ctx.args.length > 0) {
+                let string = ctx.args.length == 1 ? 'Command usage\n' : 'Command usages\n';
+                ctx.args.forEach((commandName) => {
+                    const command = commands[commandName];
+                    if (command) {
+                        string += `${command.usage}\n`;
+                    }
+                    else {
+                        ctx.reply(`Unknown command ${commandName}`);
+                    }
+                });
+                // reply
+                ctx.reply(string);
+            }
+            else {
+                // reply
+                ctx.reply('You must specify at least 1 parameter');
+            }
         }
     }
 };
 
-function main() {
+main = () => {
     // create tables
     createTables(db);
 
@@ -72,9 +137,6 @@ function main() {
         const command = commands[commandName];
         bot.command(command.name, command.func);
     }
-    bot.on('message', (ctx) => {
-        console.log(ctx);
-    });
 
     // launch and graceful stop
     bot.launch();
