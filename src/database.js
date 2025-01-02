@@ -1,4 +1,4 @@
-function createTables(db) {
+exports.createTables = (db) => {
     db.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
