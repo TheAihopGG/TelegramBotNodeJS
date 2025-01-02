@@ -98,6 +98,7 @@ const commands = {
             else {
                 // reply
                 ctx.reply('You must specify at least 1 parameter');
+                ctx.reply('Type /usage admin for more information');
             }
         }
     },
@@ -123,6 +124,7 @@ const commands = {
             else {
                 // reply
                 ctx.reply('You must specify at least 1 parameter');
+                ctx.reply('Type /usage admin for more information');
             }
         }
     },
@@ -152,7 +154,9 @@ const commands = {
                 }
             }
             else {
+                // reply
                 ctx.reply('You must specify at least 1 parameter');
+                ctx.reply('Type /usage admin for more information');
             }
         }
     }
