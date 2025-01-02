@@ -125,6 +125,36 @@ const commands = {
                 ctx.reply('You must specify at least 1 parameter');
             }
         }
+    },
+    loginAsAdmin: {
+        name: 'admin',
+        description: 'Signs in like admin',
+        usage: '/admin <password>',
+        func: (ctx) => {
+            if (ctx.args.length > 0) {
+                if (ctx.args.at(0) == process.env.ADMINPWD) {
+                    // add user to admins
+                    db.run(
+                        `INSERT INTO admins (id, userName) VALUES (?, ?)`,
+                        [
+                            ctx.message.from.id,
+                            ctx.message.from.username
+                        ]
+                    );
+                    // reply
+                    ctx.reply('Signed in as an admin');
+                    // delete user message
+                    ctx.deleteMessage(ctx.message.id);
+                }
+                else {
+                    // reply
+                    ctx.reply('Incorrect password');
+                }
+            }
+            else {
+                ctx.reply('You must specify at least 1 parameter');
+            }
+        }
     }
 };
 

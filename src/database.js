@@ -8,7 +8,8 @@ exports.createTables = (db) => {
         );
         CREATE TABLE IF NOT EXISTS admins (
             id TEXT PRIMARY KEY,
-            userName TEXT
+            userName TEXT,
+            FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
         );
         CREATE TABLE IF NOT EXISTS products (
             id TEXT PRIMARY KEY,
