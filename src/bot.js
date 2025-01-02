@@ -68,6 +68,7 @@ const commands = {
         usage: '/ticket <question>[, <image_url1>[, <image_url2>[, <image_urlN>]]]',
         func: (ctx) => {
             if (ctx.args.length == 1) {
+                console.log(uuidv4());
                 // add ticket to tickets
                 db.run(
                     `INSERT OR REPLACE INTO tickets(id, userId, commentary) VALUES (?, ?, ?)`,
@@ -81,15 +82,14 @@ const commands = {
                 ctx.reply('Ticket submitted successfully');
             }
             else if (ctx.args.length > 1) {
-                console.log(uuidv4());
                 // add ticket to tickets
                 db.run(
-                    `INSERT OR REPLACE INTO tickets(id, userId, commentary, image_urls) VALUES (?, ?, ?)`,
+                    `INSERT OR REPLACE INTO tickets(id, userId, commentary, image_urls) VALUES (?, ?, ?, ?)`,
                     [
-                        parseInt(uuidv4()),
+                        uuidv4(),
                         ctx.message.from.id,
                         ctx.args.at(0), // commentary
-                        ctx.args.slice(1, -1) // image urls
+                        JSON.stringify(ctx.args.slice(1, Infinity)) // image urls
                     ]
                 );
                 // reply
