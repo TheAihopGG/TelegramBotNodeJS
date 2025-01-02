@@ -1,17 +1,17 @@
 exports.createTables = (db) => {
     db.exec(`
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY,
+            id TEXT PRIMARY KEY,
             userName TEXT,
             banned INTEGER DEFAULT 0,
             banReason TEXT DEFAULT ""
         );
         CREATE TABLE IF NOT EXISTS admins (
-            id INTEGER PRIMARY KEY,
+            id TEXT PRIMARY KEY,
             userName TEXT
         );
         CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY,
+            id TEXT PRIMARY KEY,
             name TEXT,
             description TEXT DEFAULT "",
             image_urls JSON DEFAULT [],
@@ -19,18 +19,21 @@ exports.createTables = (db) => {
             inStock INTEGER DEFAULT 1
         );
         CREATE TABLE IF NOT EXISTS orders (
-            id INTEGER PRIMARY KEY,
-            productId INTEGER,
-            userId INTEGER,
+            id TEXT PRIMARY KEY,
+            productId TEXT,
+            userId TEXT,
             commentary TEXT DEFAULT "",
-            done INTEGER DEFAULT 0
+            done INTEGER DEFAULT 0,
+            FOREIGN KEY (productId) REFERENCES products(id)
+            FOREIGN KEY (userId) REFERENCES users(id)
         );
         CREATE TABLE IF NOT EXISTS tickets (
-            id INTEGER PRIMARY KEY,
-            userId INTEGER,
+            id TEXT PRIMARY KEY,
+            userId TEXT,
             commentary TEXT DEFAULT "",
             image_urls JSON DEFAULT [],
-            closed INTEGER DEFAULT 0
+            closed INTEGER DEFAULT 0,
+            FOREIGN KEY (userId) REFERENCES users(id)
         );
     `);
 }
